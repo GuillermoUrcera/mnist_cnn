@@ -65,11 +65,12 @@ conv2=tf.layers.conv2d(inputs=pool1,filters=128,kernel_size=3,padding='valid',ac
 pool2=tf.layers.max_pooling2d(conv2,2,2,name="max_pool_layer_2")
 flat=tf.layers.flatten(pool2)
 dense1=tf.layers.dense(flat,256,activation=tf.nn.relu,name="dense_layer_1")
-output=tf.layers.dense(dense1,10,activation=tf.nn.softmax,name="dense_layer_2")
+logits=tf.layers.dense(dense1,10,activation=None,name="logits")
+output=tf.nn.softmax(logits)
 
 weights=tf.trainable_variables() 
 lossL2=tf.add_n([tf.nn.l2_loss(v) for v in weights if 'bias' not in v.name ])*L2_LAMBDA
-cost=tf.reduce_mean(tf.square(output-label_tensor))+lossL2
+cost=tf.losses.softmax_cross_entropy(onehot_labels=label_tensor,logits=logits)+lossL2
 
 train=tf.train.AdamOptimizer(LEARNING_RATE).minimize(cost)
 

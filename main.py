@@ -4,7 +4,7 @@ GUILLERMO URCERA MARTÍN
 """
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
+import time
 
 # Constants
 LOGS_PATH="/tmp/mnist_cnn_logs"
@@ -20,26 +20,6 @@ mnist=tf.keras.datasets.mnist
 image_size=len(images_train[0])
 train_elements=len(labels_train_1d)
 test_elements=len(labels_test_1d)
-
-# Take a look at the data
-fig, axes = plt.subplots(nrows=1, ncols=2)
-
-axes[0].hist(labels_train_1d,rwidth=0.8)
-axes[0].set_xlabel("Number")
-axes[0].set_ylabel("Count")
-axes[0].set_title("Train data")
-
-axes[1].hist(labels_test_1d,rwidth=0.8)
-axes[1].set_xlabel("Number")
-axes[1].set_ylabel("Count")
-axes[1].set_title("Test data")
-
-# Let's render a sample image
-fig=plt.figure()
-index=np.random.randint(train_elements)
-image=images_train[index]
-plt.imshow(image)
-print "Shape:",image.shape
 
 # Normalize data
 images_train=images_train/255.0
@@ -104,6 +84,7 @@ def generate_minibatches(images,labels):
     minibatch_list.append([x[i*MINIBATCH_SIZE:len(x),:,:],y[i*MINIBATCH_SIZE:len(y)]])
     return minibatch_list
 
+time0=time.time()
 acc_loss=0
 for epoch in range(MAX_EPOCH):
     minibatch_list=generate_minibatches(images_train,labels_train)
@@ -127,7 +108,12 @@ for epoch in range(MAX_EPOCH):
         test_accuracy=1-float(np.count_nonzero(predicted_value-labels_test_1d))/test_elements             
         summary_accuracy=sess.run(accuracy_sum,feed_dict={accuracy_ph:test_accuracy})
         writer.add_summary(summary_accuracy,epoch)
-
+time1=time.time()
+elapsed_time=time1-time0
+h=int(elapsed_time/3600)
+m=int((elapsed_time%3600)/60)
+s=elapsed_time%60
+print "Learning finished after",h,"h",m,",m",s,"s"
         
     
     
